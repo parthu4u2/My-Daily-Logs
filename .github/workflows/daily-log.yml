@@ -2,8 +2,8 @@ name: Daily Log Creator
 
 on:
   schedule:
-    - cron: '0 5 * * *'  # Runs every day at 10:30 AM IST (5 AM UTC)
-  workflow_dispatch:     # Allows manual trigger from GitHub UI
+    - cron: '0 5 * * *'  # 10:30 AM IST
+  workflow_dispatch:
 
 jobs:
   create-log:
@@ -24,7 +24,6 @@ jobs:
       run: |
         FILE_NAME="${{ env.DATE }}.md"
 
-        # Sample tips/questions/quotes
         tips=("Use sliding window for substrings." "Binary search works even in rotated arrays." "Prefix sums simplify range-based queries." "Two-pointer method is best for sorted arrays." "Dry-run test cases on paper first.")
         questions=("What made you feel proud today?" "What challenge did you overcome?" "What are you grateful for today?" "Did you learn something new?" "How did you push yourself today?")
         quotes=("Push yourself, because no one else will." "Consistency beats talent." "You don’t need to be perfect, just better than yesterday." "Big journeys begin with small steps." "Winners were once beginners who didn’t quit.")
@@ -33,7 +32,8 @@ jobs:
         RANDOM_Q=${questions[$RANDOM % ${#questions[@]}]}
         RANDOM_QUOTE=${quotes[$RANDOM % ${#quotes[@]}]}
 
-        echo "# 📅 ${{ env.PRETTY_DATE }} (${{ env.WEEKDAY }})
+        cat << EOF > "$FILE_NAME"
+# 📅 ${{ env.PRETTY_DATE }} (${{ env.WEEKDAY }})
 
 - [ ] 🏋️ **Exercise**
 - [ ] 📘 **DSA Learning**
@@ -51,12 +51,12 @@ jobs:
 
 📸 **Code Screenshot** (if any):  
 ![Upload here](images/${{ env.DATE }}.png)
-" > "$FILE_NAME"
+EOF
 
     - name: Commit and push
       run: |
         git config user.name github-actions
         git config user.email github-actions@github.com
         git add .
-        git commit -m "📄 Daily log for ${{ env.DATE }}"
+        git commit -m "📄 Daily log for ${{ env.DATE }}" || echo "No changes to commit"
         git push

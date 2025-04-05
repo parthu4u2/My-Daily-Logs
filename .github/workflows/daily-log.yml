@@ -1,4 +1,4 @@
-name: Daily Log Creator
+ name: Daily Log Creator
 
 on:
   schedule:
@@ -18,7 +18,7 @@ jobs:
       run: |
         echo "DATE=$(date +'%Y-%m-%d')" >> "$GITHUB_ENV"
         echo "PRETTY_DATE=$(date +'%d %B %Y')" >> "$GITHUB_ENV"
-        echo "WEEKDAY=$(date +'%a')" >> "$GITHUB_ENV"
+        echo "WEEKDAY=$(date +'%A')" >> "$GITHUB_ENV"
 
     - name: Generate daily log
       run: |
@@ -32,26 +32,24 @@ jobs:
         RANDOM_Q=${questions[$RANDOM % ${#questions[@]}]}
         RANDOM_QUOTE=${quotes[$RANDOM % ${#quotes[@]}]}
 
-        cat << EOF > "$FILE_NAME"
-# 📅 ${{ env.PRETTY_DATE }} (${{ env.WEEKDAY }})
-
-- [ ] 🏋️ **Exercise**
-- [ ] 📘 **DSA Learning**
-
-📝 **Notes**: 
-
-🎯 **Productivity Score**: ___ / 10  
-⭐ **Day Rating**: [ ]★ [ ]★★ [ ]★★★ [ ]★★★★ [ ]★★★★★  
-
-💡 **DSA Tip**: $RANDOM_TIP  
-
-🤔 **Reflection**: $RANDOM_Q  
-
-🌟 *$RANDOM_QUOTE*
-
-📸 **Code Screenshot** (if any):  
-![Upload here](images/${{ env.DATE }}.png)
-EOF
+        echo "# 📅 ${{ env.PRETTY_DATE }} (${{ env.WEEKDAY }})" > "$FILE_NAME"
+        echo "" >> "$FILE_NAME"
+        echo "- [ ] 🏋️ **Exercise**" >> "$FILE_NAME"
+        echo "- [ ] 📘 **DSA Learning**" >> "$FILE_NAME"
+        echo "" >> "$FILE_NAME"
+        echo "📝 **Notes**: " >> "$FILE_NAME"
+        echo "" >> "$FILE_NAME"
+        echo "🎯 **Productivity Score**: ___ / 10" >> "$FILE_NAME"
+        echo "⭐ **Day Rating**: [ ]★ [ ]★★ [ ]★★★ [ ]★★★★ [ ]★★★★★" >> "$FILE_NAME"
+        echo "" >> "$FILE_NAME"
+        echo "💡 **DSA Tip**: $RANDOM_TIP" >> "$FILE_NAME"
+        echo "" >> "$FILE_NAME"
+        echo "🤔 **Reflection**: $RANDOM_Q" >> "$FILE_NAME"
+        echo "" >> "$FILE_NAME"
+        echo "🌟 *$RANDOM_QUOTE*" >> "$FILE_NAME"
+        echo "" >> "$FILE_NAME"
+        echo "📸 **Code Screenshot** (if any):" >> "$FILE_NAME"
+        echo "![Upload here](images/${{ env.DATE }}.png)" >> "$FILE_NAME"
 
     - name: Commit and push
       run: |

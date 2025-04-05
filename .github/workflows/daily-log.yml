@@ -1,0 +1,57 @@
+name: Daily Log Creator
+
+on:
+  schedule:
+    - cron: '0 5 * * *'  # 10:30 AM IST
+
+jobs:
+  create-log:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
+    - name: Set date
+      id: date
+      run: |
+        echo "DATE=$(date +'%Y-%m-%d')" >> "$GITHUB_ENV"
+        echo "PRETTY_DATE=$(date +'%d %B %Y')" >> "$GITHUB_ENV"
+        echo "WEEKDAY=$(date +'%a')" >> "$GITHUB_ENV"
+
+    - name: Generate daily log
+      run: |
+        FILE_NAME="${{ env.DATE }}.md"
+        tips=("Use sliding window..." "Two-pointer method is great..." "Binary Search can go twisted..." "Dry-run test cases..." "Prefix sum makes life easy.")
+        questions=("What did you learn today?" "What was tough but worth it?" "What did you enjoy solving?" "What made you smile today?" "What are you grateful for?")
+        quotes=("You are your only limit." "Don't break the chain." "Keep it simple, just do it." "Learning daily makes legends." "Winners train daily.")
+
+        TIP=${tips[$RANDOM % ${#tips[@]}]}
+        Q=${questions[$RANDOM % ${#questions[@]}]}
+        QUOTE=${quotes[$RANDOM % ${#quotes[@]}]}
+
+        echo "# 📅 ${{ env.PRETTY_DATE }} (${{ env.WEEKDAY }})
+
+- [ ] 🏋️ **Exercise**
+- [ ] 📘 **DSA Learning**
+
+📝 **Notes**: 
+
+🎯 **Productivity Score**: ___ / 10  
+⭐ **Day Rating**: [ ]★ [ ]★★ [ ]★★★ [ ]★★★★ [ ]★★★★★  
+
+💡 **DSA Tip**: $TIP  
+🤔 **Reflection**: $Q  
+🌟 *$QUOTE*
+
+📸 **Code Screenshot** (if any):  
+![Upload here](images/${{ env.DATE }}.png)
+" > "$FILE_NAME"
+
+    - name: Commit
+      run: |
+        git config user.name github-actions
+        git config user.email github-actions@github.com
+        git add .
+        git commit -m "📄 Daily log for ${{ env.DATE }}"
+        git push

@@ -12,6 +12,8 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
+      with:
+        fetch-depth: 0  # Ensures full history for rebase
 
     - name: Set date environment variables
       run: |
@@ -22,15 +24,18 @@ jobs:
     - name: Generate daily log
       run: |
         FILE_NAME="${{ env.DATE }}.md"
-
+        
+        # Arrays for random content
         tips=("Use sliding window for substrings." "Binary search works even in rotated arrays." "Prefix sums simplify range-based queries." "Two-pointer method is best for sorted arrays." "Dry-run test cases on paper first.")
         questions=("What made you feel proud today?" "What challenge did you overcome?" "What are you grateful for today?" "Did you learn something new?" "How did you push yourself today?")
-        quotes=("Push yourself, because no one else will." "Consistency beats talent." "You don’t need to be perfect, just better than yesterday." "Big journeys begin with small steps." "Winners were once beginners who didn’t quit.")
+        quotes=("Push yourself, because no one else will." "Consistency beats talent." "You don't need to be perfect, just better than yesterday." "Big journeys begin with small steps." "Winners were once beginners who didn't quit.")
 
-        RANDOM_TIP=${tips[$RANDOM % ${#tips[@]}]}
-        RANDOM_Q=${questions[$RANDOM % ${#questions[@]}]}
-        RANDOM_QUOTE=${quotes[$RANDOM % ${#quotes[@]}]}
+        # Get random elements
+        RANDOM_TIP=${tips[$((RANDOM % ${#tips[@]}))]}
+        RANDOM_Q=${questions[$((RANDOM % ${#questions[@]}))]}
+        RANDOM_QUOTE=${quotes[$((RANDOM % ${#quotes[@]}))]}
 
+        # Create markdown file
         echo "# 📅 ${{ env.PRETTY_DATE }} (${{ env.WEEKDAY }})" > "$FILE_NAME"
         echo "" >> "$FILE_NAME"
         echo "- [ ] 🏋️ **Exercise**" >> "$FILE_NAME"
@@ -52,11 +57,11 @@ jobs:
 
     - name: Commit and push
       env:
-        TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        git config user.name github-actions
-        git config user.email github-actions@github.com
+        git config user.name "github-actions"
+        git config user.email "github-actions@github.com"
         git add .
         git commit -m "📄 Daily log for ${{ env.DATE }}" || echo "No changes to commit"
-        git pull origin main --rebase
-        git push https://x-access-token:${TOKEN}@github.com/${{ github.repository }}.git HEAD:main
+        git pull --rebase
+        git push

@@ -2,7 +2,8 @@ name: Daily Log Creator
 
 on:
   schedule:
-    - cron: '0 5 * * *'  # 10:30 AM IST
+    - cron: '0 5 * * *'  # Runs every day at 10:30 AM IST (5 AM UTC)
+  workflow_dispatch:     # Allows manual trigger from GitHub UI
 
 jobs:
   create-log:
@@ -22,13 +23,15 @@ jobs:
     - name: Generate daily log
       run: |
         FILE_NAME="${{ env.DATE }}.md"
-        tips=("Use sliding window..." "Two-pointer method is great..." "Binary Search can go twisted..." "Dry-run test cases..." "Prefix sum makes life easy.")
-        questions=("What did you learn today?" "What was tough but worth it?" "What did you enjoy solving?" "What made you smile today?" "What are you grateful for?")
-        quotes=("You are your only limit." "Don't break the chain." "Keep it simple, just do it." "Learning daily makes legends." "Winners train daily.")
 
-        TIP=${tips[$RANDOM % ${#tips[@]}]}
-        Q=${questions[$RANDOM % ${#questions[@]}]}
-        QUOTE=${quotes[$RANDOM % ${#quotes[@]}]}
+        # Sample tips/questions/quotes
+        tips=("Use sliding window for substrings." "Binary search works even in rotated arrays." "Prefix sums simplify range-based queries." "Two-pointer method is best for sorted arrays." "Dry-run test cases on paper first.")
+        questions=("What made you feel proud today?" "What challenge did you overcome?" "What are you grateful for today?" "Did you learn something new?" "How did you push yourself today?")
+        quotes=("Push yourself, because no one else will." "Consistency beats talent." "You don’t need to be perfect, just better than yesterday." "Big journeys begin with small steps." "Winners were once beginners who didn’t quit.")
+
+        RANDOM_TIP=${tips[$RANDOM % ${#tips[@]}]}
+        RANDOM_Q=${questions[$RANDOM % ${#questions[@]}]}
+        RANDOM_QUOTE=${quotes[$RANDOM % ${#quotes[@]}]}
 
         echo "# 📅 ${{ env.PRETTY_DATE }} (${{ env.WEEKDAY }})
 
@@ -40,15 +43,17 @@ jobs:
 🎯 **Productivity Score**: ___ / 10  
 ⭐ **Day Rating**: [ ]★ [ ]★★ [ ]★★★ [ ]★★★★ [ ]★★★★★  
 
-💡 **DSA Tip**: $TIP  
-🤔 **Reflection**: $Q  
-🌟 *$QUOTE*
+💡 **DSA Tip**: $RANDOM_TIP  
+
+🤔 **Reflection**: $RANDOM_Q  
+
+🌟 *$RANDOM_QUOTE*
 
 📸 **Code Screenshot** (if any):  
 ![Upload here](images/${{ env.DATE }}.png)
 " > "$FILE_NAME"
 
-    - name: Commit
+    - name: Commit and push
       run: |
         git config user.name github-actions
         git config user.email github-actions@github.com

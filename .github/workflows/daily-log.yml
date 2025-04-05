@@ -1,24 +1,23 @@
- name: Daily Log Creator
+name: Daily Log Creator
 
 on:
   schedule:
-    - cron: '0 5 * * *'  # 10:30 AM IST
-  workflow_dispatch:
+    - cron: '0 5 * * *'  # Runs daily at 10:30 AM IST (5:00 AM UTC)
+  workflow_dispatch:     # Allows manual run
 
 jobs:
   create-log:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repo
+    - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Set date
-      id: date
+    - name: Set date environment variables
       run: |
-        echo "DATE=$(date +'%Y-%m-%d')" >> "$GITHUB_ENV"
-        echo "PRETTY_DATE=$(date +'%d %B %Y')" >> "$GITHUB_ENV"
-        echo "WEEKDAY=$(date +'%A')" >> "$GITHUB_ENV"
+        echo "DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
+        echo "PRETTY_DATE=$(date +'%d %B %Y')" >> $GITHUB_ENV
+        echo "WEEKDAY=$(date +'%A')" >> $GITHUB_ENV
 
     - name: Generate daily log
       run: |

@@ -1,0 +1,46 @@
+name: Daily Log Creator
+
+on:
+  schedule:
+    - cron: '0 5 * * *'  # Daily at 10:30 AM IST (5:00 AM UTC)
+  workflow_dispatch:
+
+jobs:
+  create-log:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set date variables
+        id: vars
+        run: |
+          echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+          echo "pretty_date=$(date +'%d %B %Y')" >> $GITHUB_OUTPUT
+          echo "weekday=$(date +'%A')" >> $GITHUB_OUTPUT
+
+      - name: Create daily log file
+        run: |
+          FILENAME="${{ steps.vars.outputs.date }}.md"
+          echo "# 📅 ${{ steps.vars.outputs.pretty_date }} (${{ steps.vars.outputs.weekday }})" > "$FILENAME"
+          echo "" >> "$FILENAME"
+          echo "- [ ] 🏋️ **Exercise**" >> "$FILENAME"
+          echo "- [ ] 📘 **DSA Learning**" >> "$FILENAME"
+          echo "" >> "$FILENAME"
+          echo "📝 **Notes**: " >> "$FILENAME"
+          echo "" >> "$FILENAME"
+          echo "🎯 **Productivity Score**: ___ / 10" >> "$FILENAME"
+          echo "⭐ **Day Rating**: [ ]★ [ ]★★ [ ]★★★ [ ]★★★★ [ ]★★★★★" >> "$FILENAME"
+          echo "" >> "$FILENAME"
+          echo "📸 **Screenshot**: ![Upload here](images/${{ steps.vars.outputs.date }}.png)" >> "$FILENAME"
+
+      - name: Commit and push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add .
+          git commit -m "📝 Daily log for ${{ steps.vars.outputs.date }}" || echo "Nothing to commit"
+          git push

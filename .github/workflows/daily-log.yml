@@ -2,7 +2,7 @@ name: Daily Log Creator
 
 on:
   schedule:
-    - cron: '0 5 * * *'  # Daily at 10:30 AM IST (5:00 AM UTC)
+    - cron: '0 5 * * *'  # Runs daily at 10:30 AM IST
   workflow_dispatch:
 
 jobs:
@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Set date variables
@@ -43,4 +43,5 @@ jobs:
           git config user.email "github-actions@github.com"
           git add .
           git commit -m "📝 Daily log for ${{ steps.vars.outputs.date }}" || echo "Nothing to commit"
-          git push
+          git pull --rebase origin main
+          git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git HEAD:main
